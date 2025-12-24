@@ -1,5 +1,5 @@
 from datetime import date, time
-from typing import List, Literal
+from typing import List, Literal, Optional
 from pydantic import BaseModel
 
 SeatType = Literal["reserved", "non_reserved"]
@@ -17,7 +17,7 @@ class Segment(BaseModel):
     destination: str
     departure_time: str
     arrival_time: str
-    fare: int | None = None
+    fare: Optional[int] = None
 
 class TripOption(BaseModel):
     departure_time: str

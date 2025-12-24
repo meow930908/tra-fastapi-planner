@@ -1,0 +1,8 @@
+[
+  {"train_no": "111", "origin": "臺北", "destination": "臺中", "dep": "08:10", "arr": "10:00", "seat_type": "reserved", "fare": 375},
+  {"train_no": "113", "origin": "臺北", "destination": "臺中", "dep": "08:30", "arr": "10:35", "seat_type": "reserved", "fare": 375},
+  {"train_no": "201", "origin": "臺北", "destination": "臺中", "dep": "08:20", "arr": "11:10", "seat_type": "non_reserved", "fare": 241},
+
+  {"train_no": "121", "origin": "臺北", "destination": "臺南", "dep": "09:00", "arr": "12:20", "seat_type": "reserved", "fare": 738},
+  {"train_no": "221", "origin": "臺北", "destination": "臺南", "dep": "09:10", "arr": "13:30", "seat_type": "non_reserved", "fare": 477}
+]
