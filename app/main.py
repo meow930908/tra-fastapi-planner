@@ -1,85 +1,76 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from datetime import datetime
-import json
 from pathlib import Path
+import json
 
 from app.schemas import TripRequest, TripResponse, TripOption, Segment
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
-
-def load_json(filename: str):
-    path = DATA_DIR / filename
-    return json.loads(path.read_text(encoding="utf-8"))
+from app.algorithms.dijkstra import (
+    build_by_origin,
+    earliest_arrival_dijkstra,
+    compress_segments,
+    min_to_hhmm,
+)
 
 app = FastAPI(title="TRA Fastest Trip API")
 
-# ✅ 前後端分離必備：先允許前端跨網域呼叫（開發期用 * 最省事）
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # 之後可改成你的前端網址
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.get("/")
-def root():
-    return {"message": "Hello, FastAPI"}
+BASE_DIR = Path(__file__).resolve().parents[1]
+DATA_PATH = BASE_DIR / "data" / "timetable_connections_clean_20251223.json"
 
-@app.get("/api/stations")
-def stations():
-    return load_json("stations.json")
+if not DATA_PATH.exists():
+    raise RuntimeError("找不到 timetable_connections_clean_20251223.json")
+
+CONNECTIONS = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+
+_BY_ORIGIN_CACHE = {}
+
+def get_index(seat_type: str):
+    if seat_type not in _BY_ORIGIN_CACHE:
+        _BY_ORIGIN_CACHE[seat_type] = build_by_origin(CONNECTIONS, seat_type)
+    return _BY_ORIGIN_CACHE[seat_type]
 
 @app.post("/api/plan-trip", response_model=TripResponse)
 def plan_trip(req: TripRequest):
-    trains = load_json("timetable.json")
+    start_min = req.time.hour * 60 + req.time.minute
+    by_origin = get_index(req.seat_type)
 
-    # 1) 起迄站 + seat_type 過濾
-    candidates = [
-        t for t in trains
-        if t["origin"] == req.origin
-        and t["destination"] == req.destination
-        and t["seat_type"] == req.seat_type
+    arr_min, path = earliest_arrival_dijkstra(
+        by_origin,
+        req.origin,
+        req.destination,
+        start_min,
+        transfer_buffer_min=8,
+    )
+
+    if arr_min is None:
+        raise HTTPException(status_code=404, detail="找不到可到達路徑")
+
+    merged = compress_segments(path)
+
+    segments = [
+        Segment(
+            train_no=s["train_no"],
+            origin=s["origin"],
+            destination=s["destination"],
+            departure_time=s["dep"],
+            arrival_time=s["arr"],
+            fare=s.get("fare"),
+        )
+        for s in merged
     ]
-    if not candidates:
-        raise HTTPException(status_code=404, detail="找不到符合條件的班次（離線資料）")
 
-    # 2) 出發時間 >= 使用者輸入時間
-    date_str = req.date.isoformat()
-    min_dt = datetime.fromisoformat(f"{date_str}T{req.time.strftime('%H:%M')}")
+    best = TripOption(
+        departure_time=min_to_hhmm(start_min),
+        arrival_time=min_to_hhmm(arr_min),
+        total_minutes=arr_min - start_min,
+        seat_type=req.seat_type,
+        segments=segments,
+    )
 
-    def to_dt(hhmm: str):
-        return datetime.fromisoformat(f"{date_str}T{hhmm}")
-
-    candidates = [t for t in candidates if to_dt(t["dep"]) >= min_dt]
-    if not candidates:
-        raise HTTPException(status_code=404, detail="該時間之後沒有班次（離線資料）")
-
-    # 3) 依到達時間最早排序（最早到 = 最快）
-    candidates.sort(key=lambda t: t["arr"])
-
-    def minutes(dep: str, arr: str) -> int:
-        return int((to_dt(arr) - to_dt(dep)).total_seconds() // 60)
-
-    def to_option(t):
-        seg = Segment(
-            train_no=t["train_no"],
-            origin=t["origin"],
-            destination=t["destination"],
-            departure_time=t["dep"],
-            arrival_time=t["arr"],
-            fare=t.get("fare"),
-        )
-        return TripOption(
-            departure_time=t["dep"],
-            arrival_time=t["arr"],
-            total_minutes=minutes(t["dep"], t["arr"]),
-            seat_type=t["seat_type"],
-            segments=[seg],
-        )
-
-    best = to_option(candidates[0])
-    alts = [to_option(x) for x in candidates[1:3]]
-    return TripResponse(best_option=best, alternatives=alts)
+    return TripResponse(best_option=best, alternatives=[])
