@@ -86,6 +86,7 @@ README.md - 專案的使用說明書
 source .venv/bin/activate
 ```
 
+啟動 FastAPI Web API 伺服器
 ```bash
 uvicorn app.main:app --reload
 ```
