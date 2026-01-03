@@ -8,8 +8,6 @@ class Segment(BaseModel):
     destination: str
     departure_time: str
     arrival_time: str
-    fare: Optional[int] = None
-
 class TripOption(BaseModel):
     departure_time: str
     arrival_time: str

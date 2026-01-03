@@ -60,8 +60,7 @@ def plan_trip(req: TripRequest):
             destination=s["destination"],
             departure_time=s["dep"],
             arrival_time=s["arr"],
-            fare=s.get("fare"),
-        )
+)
         for s in merged
     ]
 

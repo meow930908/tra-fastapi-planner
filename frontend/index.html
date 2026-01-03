@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TRA 最快路線查詢（純前端）</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>台鐵最快行程查詢</h1>
+      <p class="sub">純前端呼叫 FastAPI：<code>/api/plan-trip</code></p>
+    </header>
+
+    <section class="card">
+      <form id="tripForm" class="form">
+        <div class="grid">
+          <label>
+            日期
+            <input id="date" type="date" required />
+          </label>
+
+          <label>
+            出發時間
+            <input id="time" type="time" required />
+          </label>
+
+          <label>
+            起站（origin）
+            <input id="origin" type="text" placeholder="例：台北" required />
+          </label>
+
+          <label>
+            迄站（destination）
+            <input id="destination" type="text" placeholder="例：台中" required />
+          </label>
+
+          <label>
+            座位類型（seat_type）
+            <select id="seatType" required>
+              <option value="reserved">reserved（對號/指定）</option>
+              <option value="non_reserved">non_reserved（非對號）</option>
+            </select>
+          </label>
+
+          <label>
+            API Base URL
+            <input id="apiBase" type="url" placeholder="例：http://127.0.0.1:8000" />
+            <small>留空則使用同網域（適合前後端同站台部署）</small>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="submitBtn" type="submit">查詢最快路線</button>
+          <button id="fillDemoBtn" type="button" class="secondary">填入範例</button>
+        </div>
+
+        <div id="status" class="status" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>結果</h2>
+      <div id="result" class="result">
+        <p class="hint">請先送出查詢。</p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <small>提示：若 API 與前端不同網域，FastAPI 需開啟 CORS（你朋友的程式已 allow_origins="*"）。</small>
+    </footer>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
