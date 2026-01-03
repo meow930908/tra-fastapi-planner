@@ -136,9 +136,9 @@ function fillDemo() {
   const dd = String(today.getDate()).padStart(2, "0");
   $("date").value = `${yyyy}-${mm}-${dd}`;
   $("time").value = "09:00";
-  $("origin").value = "台北";
-  $("destination").value = "台中";
-  $("seatType").value = "reserved";
+  $("origin").value = "臺北";
+  $("destination").value = "臺中";
+  $("seatType").value = "non_reserved";
   // 若你的 API 在本機：
   $("apiBase").value = "http://127.0.0.1:8000";
   setStatus("已填入範例。");
