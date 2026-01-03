@@ -81,6 +81,11 @@ README.md - 專案的使用說明書
 
 ### 啟動後端服務
 
+進入虛擬環境：
+```
+source .venv/bin/activate
+```
+
 ```bash
 uvicorn app.main:app --reload
 ```
