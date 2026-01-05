@@ -35,10 +35,10 @@ Frontend (Web / App)
 
 ```
 tra-fastapi-planner/
-├─frontend/
+├─ docs/
 │  ├─ app.js
-│  ├─index.html
-│  └─styles.css
+│  ├─ index.html
+│  └─ styles.css
 ├─ app/
 │  ├─ main.py
 │  ├─ schemas.py
@@ -54,6 +54,15 @@ tra-fastapi-planner/
 ## 檔案說明
 
 ```
+app.js
+└─前端的主要邏輯與 API 串接
+
+index.html
+└─ 定義整個網頁的 結構與表單
+
+styles.css
+└─ 前端畫面樣式（UI / 視覺）
+
 main.py ─ FastAPI 主程式（API 入口）
 └─ 收到前端請求
    ├─ 解析輸入（起點/終點/時間/座位類型）
