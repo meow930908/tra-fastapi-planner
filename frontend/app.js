@@ -139,8 +139,7 @@ function fillDemo() {
   $("origin").value = "臺北";
   $("destination").value = "臺中";
   $("seatType").value = "non_reserved";
-  // 若你的 API 在本機：
-  $("apiBase").value = "http://127.0.0.1:8000";
+  $("apiBase").value = "https://tra-fastapi-planner.zeabur.app";
   setStatus("已填入範例。");
 }
 
