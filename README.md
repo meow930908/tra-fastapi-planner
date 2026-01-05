@@ -35,6 +35,10 @@ Frontend (Web / App)
 
 ```
 tra-fastapi-planner/
+├─frontend/
+│  ├─ app.js
+│  ├─index.html
+│  └─styles.css
 ├─ app/
 │  ├─ main.py
 │  ├─ schemas.py
